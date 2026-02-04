@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace Ara3D.BimOpenSchema;
 
@@ -27,16 +27,16 @@ namespace Ara3D.BimOpenSchema;
 public interface IBimData
 {
     Manifest Manifest { get; }
-    IReadOnlyList<ParameterDescriptor> Descriptors { get; } 
-    IReadOnlyList<ParameterInt> IntegerParameters { get; } 
-    IReadOnlyList<ParameterSingle> SingleParameters { get; } 
-    IReadOnlyList<ParameterString> StringParameters { get; } 
-    IReadOnlyList<ParameterEntity> EntityParameters { get; } 
-    IReadOnlyList<ParameterPoint> PointParameters { get; } 
-    IReadOnlyList<Document> Documents { get; } 
-    IReadOnlyList<Entity> Entities { get; } 
-    IReadOnlyList<string> Strings { get; } 
-    IReadOnlyList<Point> Points { get; } 
+    IReadOnlyList<ParameterDescriptor> Descriptors { get; }
+    IReadOnlyList<ParameterInt> IntegerParameters { get; }
+    IReadOnlyList<ParameterSingle> SingleParameters { get; }
+    IReadOnlyList<ParameterString> StringParameters { get; }
+    IReadOnlyList<ParameterEntity> EntityParameters { get; }
+    IReadOnlyList<ParameterPoint> PointParameters { get; }
+    IReadOnlyList<Document> Documents { get; }
+    IReadOnlyList<Entity> Entities { get; }
+    IReadOnlyList<string> Strings { get; }
+    IReadOnlyList<Point> Points { get; }
     IReadOnlyList<EntityRelation> Relations { get; }
     IReadOnlyList<Diagnostic> Diagnostics { get; }
     BimGeometry Geometry { get; }
@@ -55,14 +55,14 @@ public class Manifest
 //==
 // Enumerations used for indexing tables. Provides type-safety and convenience in code
 //
-// The choice of long provides future proofing. 
+// Indices are 32-bit to match BOS parquet (INT32) and web loaders.
 
-public enum EntityIndex : long { }
-public enum PointIndex : long { }
-public enum DocumentIndex : long { }
-public enum DescriptorIndex : long { }
-public enum StringIndex : long { }
-public enum RelationIndex : long { }
+public enum EntityIndex : int { }
+public enum PointIndex : int { }
+public enum DocumentIndex : int { }
+public enum DescriptorIndex : int { }
+public enum StringIndex : int { }
+public enum RelationIndex : int { }
 
 //==
 // Main data type 
@@ -76,10 +76,10 @@ public record struct Entity
     // ElementID in Revit, and Step Line # in IFC
     // Will be unique when combined with a DocumentIndex (e.g., "${LocalId}-{Document}" would be a unique string identifier within the database). 
     // But multiple documents can share the same entity  
-    long LocalId,
+    int LocalId,
 
     // UniqueID in Revit, and GlobalID in IFC (not stored in string table, because it is never duplicated)
-    StringIndex GlobalId, 
+    StringIndex GlobalId,
 
     // The index of the document this entity is part of 
     DocumentIndex Document,
@@ -89,7 +89,7 @@ public record struct Entity
 
     // The category of the entity
     EntityIndex Category,
-    
+
     // The "type" of the entity if it is an instance 
     EntityIndex Type
 );
@@ -119,7 +119,7 @@ public record struct Point
 /// </summary>
 public enum ParameterType
 {
-    Int, 
+    Int,
     Bool = Int,
     Number,
     Entity,
@@ -238,12 +238,12 @@ public enum RelationType
 
     // MEP networks and connection manager
     HasConnector = 8,
-    
+
     // For space <-> boundary relationships. 
     BoundedBy = 9,
 
     // Can traverse from one space to another (e.g., portal)
-    TraverseTo = 10, 
+    TraverseTo = 10,
 
     // Relationship between openings (e.g., doorways, window frame) and hosts  
     Voids = 11,
